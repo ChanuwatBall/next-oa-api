@@ -26,7 +26,7 @@ WORKDIR /app
 ENV TZ=Asia/Bangkok
 
 # Copy jar from builder
-COPY --from=builder /app/target/*.jar app.jar
+COPY --from=builder /app/target/ticket-oa-api.jar app.jar
 
 EXPOSE 8081
 
