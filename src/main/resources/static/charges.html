@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Charge Management - Test Mode</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            padding: 30px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: #ff6b6b;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #ee5a52;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 5px;
+            text-align: center;
+            border-left: 4px solid #667eea;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .charges-list {
+            overflow-x: auto;
+        }
+
+        .charges-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        .charges-table thead {
+            background: #f8f9fa;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .charges-table th {
+            padding: 15px;
+            text-align: left;
+            color: #333;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .charges-table td {
+            padding: 15px;
+            border-bottom: 1px solid #dee2e6;
+            font-size: 14px;
+        }
+
+        .charges-table tbody tr {
+            transition: background 0.2s ease;
+        }
+
+        .charges-table tbody tr:hover {
+            background: #f9f9f9;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-failed {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+        }
+
+        .btn-sm {
+            padding: 5px 10px;
+            font-size: 12px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+        }
+
+        .btn-error {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-error:hover {
+            background: #c82333;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        .empty-icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+
+            .charges-table {
+                font-size: 12px;
+            }
+
+            .charges-table th,
+            .charges-table td {
+                padding: 10px;
+            }
+
+            .btn-sm {
+                padding: 4px 8px;
+                font-size: 11px;
+            }
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .alert.show {
+            display: block;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>💳 Charge Management - Test Mode</h1>
+        <p class="subtitle">จัดการ Charge ทั้งหมดที่สร้างในโหมด Test</p>
+
+        <div class="alert alert-success" id="successAlert"></div>
+        <div class="alert alert-error" id="errorAlert"></div>
+
+        <div class="controls">
+            <button class="btn-primary" onclick="loadCharges()">🔄 รีโหลด</button>
+            <button class="btn-danger" onclick="clearAllCharges()">🗑️ ลบทั้งหมด</button>
+        </div>
+
+        <div class="stats" id="stats">
+            <div class="stat-card">
+                <div class="stat-value" id="totalCharges">0</div>
+                <div class="stat-label">ทั้งหมด</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="pendingCharges">0</div>
+                <div class="stat-label">รอดำเนินการ</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="successCharges">0</div>
+                <div class="stat-label">สำเร็จ</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="failedCharges">0</div>
+                <div class="stat-label">ไม่สำเร็จ</div>
+            </div>
+        </div>
+
+        <div class="charges-list">
+            <div id="chargesContainer" class="loading">
+                <p>⏳ กำลังโหลดข้อมูล...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:8081/api/payment';
+
+        // แสดง alert
+        function showAlert(message, type = 'success') {
+            const alertEl = type === 'success' ? document.getElementById('successAlert') : document.getElementById('errorAlert');
+            alertEl.textContent = message;
+            alertEl.classList.add('show');
+            setTimeout(() => {
+                alertEl.classList.remove('show');
+            }, 3000);
+        }
+
+        // โหลด charges ทั้งหมด
+        async function loadCharges() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/charges`);
+                const charges = await response.json();
+
+                updateStats(charges);
+                renderCharges(charges);
+            } catch (error) {
+                console.error('Error loading charges:', error);
+                showAlert('ไม่สามารถโหลดข้อมูลได้', 'error');
+            }
+        }
+
+        // คำนวณสถิติ
+        function updateStats(charges) {
+            const total = charges.length;
+            const pending = charges.filter(c => c.status === 'Pending').length;
+            const success = charges.filter(c => c.status === 'Success').length;
+            const failed = charges.filter(c => c.status === 'Failed').length;
+
+            document.getElementById('totalCharges').textContent = total;
+            document.getElementById('pendingCharges').textContent = pending;
+            document.getElementById('successCharges').textContent = success;
+            document.getElementById('failedCharges').textContent = failed;
+        }
+
+        // แสดง charges ใน table
+        function renderCharges(charges) {
+            const container = document.getElementById('chargesContainer');
+
+            if (charges.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">📭</div>
+                        <p>ไม่มี Charge ให้แสดง</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const table = `
+                <table class="charges-table">
+                    <thead>
+                        <tr>
+                            <th>Charge ID</th>
+                            <th>Source ID</th>
+                            <th>Amount (Satang)</th>
+                            <th>Status</th>
+                            <th>Created</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${charges.map(charge => `
+                            <tr>
+                                <td><code>${charge.id}</code></td>
+                                <td>${charge.sourceId}</td>
+                                <td>${formatAmount(charge.amount)}</td>
+                                <td>${getStatusBadge(charge.status)}</td>
+                                <td>${formatDate(charge.createdAt)}</td>
+                                <td>
+                                    <div class="action-buttons">
+                                        ${charge.status !== 'Success' ? `
+                                            <button class="btn-sm btn-success" onclick="updateStatus('${charge.id}', 'Success')">✓ สำเร็จ</button>
+                                        ` : ''}
+                                        ${charge.status !== 'Failed' ? `
+                                            <button class="btn-sm btn-error" onclick="updateStatus('${charge.id}', 'Failed')">✗ ไม่สำเร็จ</button>
+                                        ` : ''}
+                                    </div>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+
+            container.innerHTML = table;
+        }
+
+        // อัปเดตสถานะ
+        async function updateStatus(chargeId, status) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/charges/${chargeId}/status?status=${status}`, {
+                    method: 'PUT'
+                });
+
+                if (response.ok) {
+                    showAlert(`Charge ${status === 'Success' ? '✓ สำเร็จ' : '✗ ไม่สำเร็จ'} แล้ว`);
+                    loadCharges();
+                } else {
+                    showAlert('ไม่สามารถอัปเดตสถานะได้', 'error');
+                }
+            } catch (error) {
+                console.error('Error updating status:', error);
+                showAlert('เกิดข้อผิดพลาด', 'error');
+            }
+        }
+
+        // ลบทั้งหมด
+        function clearAllCharges() {
+            if (confirm('คุณแน่ใจหรือ? สิ่งนี้จะลบ Charge ทั้งหมดที่อยู่ในหน่วยความจำ')) {
+                // เรียก API เพื่อลบทั้งหมด (ต้องเพิ่มใน backend)
+                fetch(`${API_BASE_URL}/charges/clear`, { method: 'POST' })
+                    .then(r => r.json())
+                    .then(() => {
+                        showAlert('ลบทั้งหมดแล้ว');
+                        loadCharges();
+                    })
+                    .catch(err => {
+                        console.error('Error:', err);
+                        // ถ้า endpoint ไม่มี ให้รีโหลดแทน
+                        showAlert('กรุณารีโหลดแอปพลิเคชัน');
+                    });
+            }
+        }
+
+        // Helper functions
+        function formatAmount(satang) {
+            const baht = satang / 100;
+            return `${baht.toFixed(2)} THB`;
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return '-';
+            const date = new Date(dateString);
+            return date.toLocaleString('th-TH', { 
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+        }
+
+        function getStatusBadge(status) {
+            let className = 'status-pending';
+            let displayText = status;
+
+            if (status === 'Pending') {
+                className = 'status-pending';
+                displayText = '⏳ รอดำเนินการ';
+            } else if (status === 'Success') {
+                className = 'status-success';
+                displayText = '✓ สำเร็จ';
+            } else if (status === 'Failed') {
+                className = 'status-failed';
+                displayText = '✗ ไม่สำเร็จ';
+            }
+
+            return `<span class="status-badge ${className}">${displayText}</span>`;
+        }
+
+        // โหลดข้อมูลเมื่อเปิดหน้า
+        loadCharges();
+
+        // รีโหลดทุก 5 วินาที
+        setInterval(loadCharges, 5000);
+    </script>
+</body>
+</html>
