@@ -1,0 +1,14 @@
+version: "3.9"
+
+services:
+  ticket-oa-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ticket-oa-api
+    ports:
+      - "8081:8081"
+    environment:
+      TZ: Asia/Bangkok
+      SERVER_PORT: 8081
+    restart: unless-stopped
