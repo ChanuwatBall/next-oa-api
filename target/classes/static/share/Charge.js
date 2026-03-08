@@ -2,9 +2,8 @@
   const { useEffect, useState } = React;
 
   window.Charge = function Charge() {
-    const API_BASE_URL = window.API_URL || `${window.location.origin}/api/payment`;
+    const API_BASE_URL = `${window.location.origin}/api/payment`;
 
-    const [isFetching, setIsFetching] = useState(false);
     const [charges, setCharges] = useState([]);
     const [successMessage, setSuccessMessage] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
@@ -22,16 +21,10 @@
       }
     };
 
-
     const loadCharges = async () => {
-      if (isFetching) return;
-
       try {
-        setIsFetching(true);
-        const response = await fetch(`${API_BASE_URL}/charges`, {
-          cache: "no-store",
-        });
-
+        setLoading(true);
+        const response = await fetch(`${API_BASE_URL}/charges`);
         if (!response.ok) {
           throw new Error("Failed to load charges");
         }
@@ -42,7 +35,7 @@
         console.error("Error loading charges:", error);
         showAlert("ไม่สามารถโหลดข้อมูลได้", "error");
       } finally {
-        setIsFetching(false);
+        setLoading(false);
       }
     };
 

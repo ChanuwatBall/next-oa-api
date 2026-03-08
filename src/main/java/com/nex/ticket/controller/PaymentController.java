@@ -11,13 +11,12 @@ import org.springframework.web.bind.annotation.*;
 
 import com.nex.ticket.bao.PaymentBodyBao;
 import com.nex.ticket.bao.PaymentResponseBao;
-import com.nex.ticket.bao.TransactionResponseBao;
-import com.nex.ticket.bao.ErrorResponseBao;
+import com.nex.ticket.bao.TransactionResponseBao; 
 import com.nex.ticket.bao.ChargeDto;
 import com.nex.ticket.bao.ErrorResponse;
 import com.nex.ticket.service.ChargeStore;
-
-import java.time.LocalDateTime;
+import com.nex.ticket.service.LineMessageService;
+ 
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -29,8 +28,11 @@ public class PaymentController {
     @Autowired
     private Client omiseClient;
 
+    @Autowired
+    private LineMessageService lineMessageService;
+
     @PostMapping("/qr")
-    public ResponseEntity<PaymentResponseBao> createQrPayment(@RequestParam Integer amount) {
+    public ResponseEntity<PaymentResponseBao> createQrPayment(@RequestParam Integer amount , @RequestBody PaymentBodyBao paymentBody) {
         try {
             Request<Source> sourceRequest = new Source.CreateRequestBuilder()
                     .type(SourceType.PromptPay)
@@ -50,7 +52,7 @@ public class PaymentController {
             Charge charge = omiseClient.sendRequest(chargeRequest);
 
             // Store charge in memory
-            String storedChargeId = ChargeStore.addCharge(source.getId(), source.getAmount(), source.getCurrency());
+            String storedChargeId = ChargeStore.addCharge(source.getId(), source.getAmount(), source.getCurrency(), paymentBody.getLineUserId());
 
             PaymentResponseBao response = new PaymentResponseBao();
             response.setSourceId(source.getId());
@@ -108,12 +110,12 @@ public class PaymentController {
             } catch (Exception omiseEx) {
                 // If Omise fails, create test mode charge
                 System.out.println("AliPay not available in Omise, creating test mode charge: " + omiseEx.getMessage());
-                chargeId = ChargeStore.addCharge(sourceId, (long) amount * 100, "THB");
+                chargeId = ChargeStore.addCharge(sourceId, (long) amount * 100, "THB",null);
             }
 
             // Save charge to memory
             if (!chargeId.startsWith("test_chrg_")) {
-                ChargeStore.addCharge(sourceId, (long) amount * 100, "THB");
+                ChargeStore.addCharge(sourceId, (long) amount * 100, "THB", null);
             }
 
             PaymentResponseBao response = new PaymentResponseBao();
@@ -138,7 +140,7 @@ public class PaymentController {
     public ResponseEntity<PaymentResponseBao> createWeChatPayPayment(@RequestParam Integer amount) {
         try {
             // Store charge in memory
-            String chargeId = ChargeStore.addCharge("wechat-test-mode", (long) amount * 100, "THB");
+            String chargeId = ChargeStore.addCharge("wechat-test-mode", (long) amount * 100, "THB", null);
 
             PaymentResponseBao response = new PaymentResponseBao();
             response.setSourceId("wechat-test-mode");
@@ -284,6 +286,15 @@ public class PaymentController {
                     record.getCreatedAt(),
                     null
             );
+            if(record.getStatus().equalsIgnoreCase("Success")) {
+                System.out.println("Charge " + chargeId + " marked as Success");
+                lineMessageService.sendCarouselMessage(record.getLineUserId() );
+            } else if(record.getStatus().equalsIgnoreCase("Failed")) {
+                System.out.println("Charge " + chargeId + " marked as Failed");
+                lineMessageService.sendLineMessage(record.getLineUserId(), "Your charge has failed.");  
+            } else {
+                System.out.println("Charge " + chargeId + " updated to status: " + record.getStatus());
+            }
             return ResponseEntity.ok(dto);
         } catch (Exception e) {
             e.printStackTrace();

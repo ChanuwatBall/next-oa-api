@@ -15,12 +15,14 @@ public class ChargeStore {
         private String status; // Pending, Success, Failed
         private String sourceId;
         private LocalDateTime createdAt;
+        private String lineUserId;
 
-        public ChargeRecord(String sourceId, long amount, String currency) {
+        public ChargeRecord(String sourceId, long amount, String currency, String lineUserId) {
             this.id = "test_chrg_" + System.currentTimeMillis() + "_" + (++chargeCounter);
             this.sourceId = sourceId;
             this.amount = amount;
             this.currency = currency;
+            this.lineUserId = lineUserId;
             this.status = "Pending";
             this.createdAt = LocalDateTime.now();
         }
@@ -33,10 +35,11 @@ public class ChargeStore {
         public void setStatus(String status) { this.status = status; }
         public String getSourceId() { return sourceId; }
         public LocalDateTime getCreatedAt() { return createdAt; }
+        public String getLineUserId() { return lineUserId; }
     }
 
-    public static String addCharge(String sourceId, long amount, String currency) {
-        ChargeRecord record = new ChargeRecord(sourceId, amount, currency);
+    public static String addCharge(String sourceId, long amount, String currency, String lineUserId) {
+        ChargeRecord record = new ChargeRecord(sourceId, amount, currency, lineUserId);
         charges.put(record.getId(), record);
         return record.getId();
     }
