@@ -21,7 +21,7 @@ public class LineMessageService {
     public void sendLineMessage(String lineUserId, String message) {
         // For testing, we will just print the message instead of sending it to LINE API
         System.out.println("Sending LINE message to user " + lineUserId + ": " + message);
-        String payload = createMessagePayload("U10d48c671adf2ca9f94d1e0f2826501e", message);
+        String payload = createMessagePayload(lineUserId, message);
         // String channelAccessToken = company.getChannelToken();
 
         // Set headers
