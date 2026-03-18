@@ -36,28 +36,28 @@ public class PaymentController {
     // ─── POST /api/payment/qr ──────────────────────────────────────────────────
 
     @PostMapping("/qr")
-    public ResponseEntity<Map<String, Object>> createQrPayment(@RequestParam int amount) {
+    public ResponseEntity<Map<String, Object>> createQrPayment(@RequestParam(name = "amount") int amount) {
         return createOmiseCharge(amount, SourceType.PromptPay);
     }
 
     // ─── POST /api/payment/alipay-qr ───────────────────────────────────────────
 
     @PostMapping("/alipay-qr")
-    public ResponseEntity<Map<String, Object>> createAlipayPayment(@RequestParam int amount) {
+    public ResponseEntity<Map<String, Object>> createAlipayPayment(@RequestParam(name = "amount") int amount) {
         return createOmiseCharge(amount, SourceType.Alipay);
     }
 
     // ─── POST /api/payment/wechat-pay ──────────────────────────────────────────
 
     @PostMapping("/wechat-pay")
-    public ResponseEntity<Map<String, Object>> createWechatPayment(@RequestParam int amount) {
+    public ResponseEntity<Map<String, Object>> createWechatPayment(@RequestParam(name = "amount") int amount) {
         return createOmiseCharge(amount, SourceType.WeChatPay);
     }
 
     // ─── GET /api/payment/transaction/:id ──────────────────────────────────────
 
     @GetMapping("/transaction/{id}")
-    public ResponseEntity<Map<String, Object>> getTransaction(@PathVariable String id) {
+    public ResponseEntity<Map<String, Object>> getTransaction(@PathVariable(name = "id") String id) {
         try {
             Request<Charge> request = new Charge.GetRequestBuilder(id).build();
             Charge charge = omiseClient.sendRequest(request);
@@ -115,7 +115,9 @@ public class PaymentController {
     }
 
     @PutMapping("/charges/{id}/status")
-    public ResponseEntity<ChargeDto> updateChargeStatus(@PathVariable String id, @RequestParam String status) {
+    public ResponseEntity<ChargeDto> updateChargeStatus(
+            @PathVariable(name = "id") String id, 
+            @RequestParam(name = "status") String status) {
         ChargeStore.updateChargeStatus(id, status);
         ChargeStore.ChargeRecord record = ChargeStore.getCharge(id);
         if (record == null) return ResponseEntity.notFound().build();

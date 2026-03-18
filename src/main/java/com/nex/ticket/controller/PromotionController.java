@@ -27,7 +27,7 @@ public class PromotionController {
 
     @GetMapping
     public ResponseEntity<List<Promotion>> getPromotions(
-            @RequestParam(required = false) Boolean memberOnly) {
+            @RequestParam(name = "memberOnly", required = false) Boolean memberOnly) {
         List<Promotion> list = MockData.PROMOTIONS;
         if (memberOnly != null) {
             list = list.stream()
@@ -40,7 +40,7 @@ public class PromotionController {
     // ─── GET /api/promotions/:id ───────────────────────────────────────────────
 
     @GetMapping("/{id}")
-    public ResponseEntity<Promotion> getPromotionById(@PathVariable String id) {
+    public ResponseEntity<Promotion> getPromotionById(@PathVariable(name = "id") String id) {
         Promotion promo = MockData.PROMOTIONS.stream()
                 .filter(p -> p.getId().equals(id))
                 .findFirst().orElse(null);

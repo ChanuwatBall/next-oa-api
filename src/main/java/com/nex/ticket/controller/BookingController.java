@@ -108,7 +108,7 @@ public class BookingController {
 
     @GetMapping
     public ResponseEntity<List<Map<String, Object>>> getBookings(
-            @RequestParam(required = false) String status) {
+            @RequestParam(name = "status", required = false) String status) {
 
         List<Map<String, Object>> list = new ArrayList<>(bookingStore.values());
         if (status != null && !status.isBlank()) {
@@ -138,7 +138,7 @@ public class BookingController {
     // ─── GET /api/bookings/:id ─────────────────────────────────────────────────
 
     @GetMapping("/{id}")
-    public ResponseEntity<Map<String, Object>> getBookingById(@PathVariable String id) {
+    public ResponseEntity<Map<String, Object>> getBookingById(@PathVariable(name = "id") String id) {
         Map<String, Object> booking = bookingStore.get(id);
         if (booking == null) {
             return ResponseEntity.notFound().build();
@@ -149,7 +149,7 @@ public class BookingController {
     // ─── PATCH /api/bookings/:id/cancel ───────────────────────────────────────
 
     @PatchMapping("/{id}/cancel")
-    public ResponseEntity<Map<String, Object>> cancelBooking(@PathVariable String id) {
+    public ResponseEntity<Map<String, Object>> cancelBooking(@PathVariable(name = "id") String id) {
         Map<String, Object> booking = bookingStore.get(id);
         if (booking == null) {
             return ResponseEntity.notFound().build();

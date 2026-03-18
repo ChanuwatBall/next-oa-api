@@ -10,7 +10,8 @@ import java.util.stream.Collectors;
 
 /**
  * Domain 2 – Trips / Search
- * GET /api/trips?originProvinceId=&destinationProvinceId=&date=&routeId=&passengerCount=
+ * GET
+ * /api/trips?originProvinceId=&destinationProvinceId=&date=&routeId=&passengerCount=
  * GET /api/trips/:id
  * GET /api/trips/:id/seats
  */
@@ -84,12 +85,12 @@ public class TripController {
 
         // Layout: 4-across rows (A B _ C D pattern for VIP, A B C D for normal)
         boolean isVip = trip.getBusType().toUpperCase().contains("VIP");
-        int cols = isVip ? 3 : 4; // VIP: 1A 1B | 1C  /  Normal: 1A 1B 1C 1D
+        int cols = isVip ? 3 : 4; // VIP: 1A 1B | 1C / Normal: 1A 1B 1C 1D
         int rows = (int) Math.ceil((double) total / cols);
 
         // Generate seat list
         List<Map<String, Object>> seats = new ArrayList<>();
-        String[] colLabels = isVip ? new String[]{"A", "B", "C"} : new String[]{"A", "B", "C", "D"};
+        String[] colLabels = isVip ? new String[] { "A", "B", "C" } : new String[] { "A", "B", "C", "D" };
         int seatIdx = 0;
         int bookedCount = 0;
 

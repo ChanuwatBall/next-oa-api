@@ -29,7 +29,7 @@ public class RouteController {
     }
 
     @GetMapping("/routes/{id}")
-    public ResponseEntity<Route> getRouteById(@PathVariable String id) {
+    public ResponseEntity<Route> getRouteById(@PathVariable(name = "id") String id) {
         Route route = MockData.findRouteById(id);
         return route != null ? ResponseEntity.ok(route) : ResponseEntity.notFound().build();
     }
@@ -38,7 +38,7 @@ public class RouteController {
 
     @GetMapping("/provinces")
     public ResponseEntity<List<Province>> getProvinces(
-            @RequestParam(required = false) String routeId) {
+            @RequestParam(name = "routeId", required = false) String routeId) {
         List<Province> result = MockData.PROVINCES;
         if (routeId != null && !routeId.isBlank()) {
             result = result.stream()
@@ -49,7 +49,7 @@ public class RouteController {
     }
 
     @GetMapping("/provinces/{id}")
-    public ResponseEntity<Province> getProvinceById(@PathVariable String id) {
+    public ResponseEntity<Province> getProvinceById(@PathVariable(name = "id") String id) {
         Province province = MockData.findProvinceById(id);
         return province != null ? ResponseEntity.ok(province) : ResponseEntity.notFound().build();
     }
@@ -58,7 +58,7 @@ public class RouteController {
 
     @GetMapping("/boarding-points")
     public ResponseEntity<List<BoardingPoint>> getBoardingPoints(
-            @RequestParam(required = false) String provinceId) {
+            @RequestParam(name = "provinceId", required = false) String provinceId) {
         if (provinceId != null && !provinceId.isBlank()) {
             return ResponseEntity.ok(MockData.findBoardingPointsByProvinceId(provinceId));
         }
@@ -66,7 +66,7 @@ public class RouteController {
     }
 
     @GetMapping("/boarding-points/{id}")
-    public ResponseEntity<BoardingPoint> getBoardingPointById(@PathVariable String id) {
+    public ResponseEntity<BoardingPoint> getBoardingPointById(@PathVariable(name = "id") String id) {
         BoardingPoint bp = MockData.findBoardingPointById(id);
         return bp != null ? ResponseEntity.ok(bp) : ResponseEntity.notFound().build();
     }
