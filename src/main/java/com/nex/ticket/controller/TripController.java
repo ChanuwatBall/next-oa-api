@@ -1,5 +1,6 @@
 package com.nex.ticket.controller;
 
+import com.nex.ticket.bao.TripSearchRequest;
 import com.nex.ticket.mock.MockData;
 import com.nex.ticket.model.Trip;
 import org.springframework.http.ResponseEntity;
@@ -22,38 +23,39 @@ public class TripController {
 
     // ─── List / Search Trips ──────────────────────────────────────────────────
 
-    @GetMapping
+    @PostMapping
     public ResponseEntity<List<Trip>> getTrips(
-            @RequestParam(required = false) String originProvinceId,
-            @RequestParam(required = false) String destinationProvinceId,
-            @RequestParam(required = false) String date,
-            @RequestParam(required = false) String routeId,
-            @RequestParam(required = false, defaultValue = "1") int passengerCount) {
-
+            @RequestBody TripSearchRequest tripSearchRequest) {
+        System.out.println("originProvinceId: " + tripSearchRequest.getOriginProvinceId());
+        System.out.println("destinationProvinceId: " + tripSearchRequest.getDestinationProvinceId());
+        System.out.println("date: " + tripSearchRequest.getDate());
+        System.out.println("routeId: " + tripSearchRequest.getRouteId());
+        System.out.println("passengerCount: " + tripSearchRequest.getPassengerCount());
         List<Trip> result = MockData.TRIPS;
 
-        if (originProvinceId != null && !originProvinceId.isBlank()) {
+        if (tripSearchRequest.getOriginProvinceId() != null && !tripSearchRequest.getOriginProvinceId().isBlank()) {
             result = result.stream()
-                    .filter(t -> t.getOriginProvinceId().equals(originProvinceId))
+                    .filter(t -> t.getOriginProvinceId().equals(tripSearchRequest.getOriginProvinceId()))
                     .collect(Collectors.toList());
         }
-        if (destinationProvinceId != null && !destinationProvinceId.isBlank()) {
+        if (tripSearchRequest.getDestinationProvinceId() != null
+                && !tripSearchRequest.getDestinationProvinceId().isBlank()) {
             result = result.stream()
-                    .filter(t -> t.getDestinationProvinceId().equals(destinationProvinceId))
+                    .filter(t -> t.getDestinationProvinceId().equals(tripSearchRequest.getDestinationProvinceId()))
                     .collect(Collectors.toList());
         }
-        if (date != null && !date.isBlank()) {
+        if (tripSearchRequest.getDate() != null && !tripSearchRequest.getDate().isBlank()) {
             result = result.stream()
-                    .filter(t -> t.getDate().equals(date))
+                    .filter(t -> t.getDate().equals(tripSearchRequest.getDate()))
                     .collect(Collectors.toList());
         }
-        if (routeId != null && !routeId.isBlank()) {
+        if (tripSearchRequest.getRouteId() != null && !tripSearchRequest.getRouteId().isBlank()) {
             result = result.stream()
-                    .filter(t -> t.getRouteId().equals(routeId))
+                    .filter(t -> t.getRouteId().equals(tripSearchRequest.getRouteId()))
                     .collect(Collectors.toList());
         }
         // Filter trips that have enough available seats for the passenger count
-        final int count = passengerCount;
+        final int count = tripSearchRequest.getPassengerCount();
         result = result.stream()
                 .filter(t -> t.getAvailableSeats() >= count)
                 .collect(Collectors.toList());

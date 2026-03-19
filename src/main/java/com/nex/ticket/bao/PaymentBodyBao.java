@@ -1,21 +1,52 @@
 package com.nex.ticket.bao;
 
+import java.util.List;
+
 public class PaymentBodyBao {
+    private RouteDetail route;
+    private List<SeatDetail> seat;
+    private Double subtotal;
+    private Double discount;
+    private Double total;
 
-    private Integer amount;
-    private String lineUserId;
-
-    public String getLineUserId() {
-        return lineUserId;
-    }
-    public void setLineUserId(String lineUserId) {
-        this.lineUserId = lineUserId;
+    public RouteDetail getRoute() {
+        return route;
     }
 
-    public Integer getAmount() {
-        return amount;
+    public void setRoute(RouteDetail route) {
+        this.route = route;
     }
-    public void setAmount(Integer amount) {
-        this.amount = amount;
+
+    public List<SeatDetail> getSeat() {
+        return seat;
     }
+
+    public void setSeat(List<SeatDetail> seat) {
+        this.seat = seat;
+    }
+
+    public Double getSubtotal() {
+        return subtotal;
+    }
+
+    public void setSubtotal(Double subtotal) {
+        this.subtotal = subtotal;
+    }
+
+    public Double getDiscount() {
+        return discount;
+    }
+
+    public void setDiscount(Double discount) {
+        this.discount = discount;
+    }
+
+    public Double getTotal() {
+        return total;
+    }
+
+    public void setTotal(Double total) {
+        this.total = total;
+    }
+
 }
