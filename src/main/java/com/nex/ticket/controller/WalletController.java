@@ -14,9 +14,9 @@ import org.springframework.web.bind.annotation.*;
 import java.util.*;
 
 /**
- * Domain 9 – Wallet  (🔒 Auth placeholder)
- * GET  /api/wallet
- * GET  /api/wallet/transactions
+ * Domain 9 – Wallet (🔒 Auth placeholder)
+ * GET /api/wallet
+ * GET /api/wallet/transactions
  * POST /api/wallet/topup
  */
 @RestController
@@ -31,19 +31,18 @@ public class WalletController {
     private static int balance = 350;
 
     private static final List<Map<String, Object>> TRANSACTIONS = new ArrayList<>(Arrays.asList(
-        buildTx("tx_001", "จ่ายค่าตั๋ว กรุงเทพ → เชียงใหม่", "28 ก.พ. 2566", -850, "payment"),
-        buildTx("tx_002", "เติมเงินผ่าน QR Code",              "8 ก.พ. 2566",  500,  "topup"),
-        buildTx("tx_003", "แลกแต้มเป็นเงิน",                   "10 ก.พ. 2566",  50,  "redeem")
-    ));
+            buildTx("tx_001", "จ่ายค่าตั๋ว กรุงเทพ → เชียงใหม่", "28 ก.พ. 2566", -850, "payment"),
+            buildTx("tx_002", "เติมเงินผ่าน QR Code", "8 ก.พ. 2566", 500, "topup"),
+            buildTx("tx_003", "แลกแต้มเป็นเงิน", "10 ก.พ. 2566", 50, "redeem")));
 
     // ─── GET /api/wallet ──────────────────────────────────────────────────────
 
     @GetMapping
     public ResponseEntity<Map<String, Object>> getWallet() {
         Map<String, Object> resp = new LinkedHashMap<>();
-        resp.put("balance",         balance);
+        resp.put("balance", balance);
         resp.put("availablePoints", 156);
-        resp.put("transactions",    TRANSACTIONS);
+        resp.put("transactions", TRANSACTIONS);
         return ResponseEntity.ok(resp);
     }
 
@@ -62,7 +61,7 @@ public class WalletController {
             return ResponseEntity.badRequest().build();
         }
 
-        String qrCodeUrl  = null;
+        String qrCodeUrl = null;
         String chargeId;
 
         try {
@@ -91,12 +90,12 @@ public class WalletController {
             }
 
             // Record in ChargeStore for status polling
-            ChargeStore.addCharge(source.getId(), (long) body.getAmount() * 100, "THB", null);
+            ChargeStore.addCharge(charge.getId(), source.getId(), (long) body.getAmount() * 100, "THB", null, null);
 
         } catch (Exception e) {
             // Fallback: create test-mode charge
-            chargeId  = ChargeStore.addCharge("wallet-test-" + body.getSourceType(),
-                                              (long) body.getAmount() * 100, "THB", null);
+            chargeId = ChargeStore.addCharge(null, "wallet-test-" + body.getSourceType(),
+                    (long) body.getAmount() * 100, "THB", null, null);
             qrCodeUrl = null;
             System.err.println("Wallet topup Omise error (using test mode): " + e.getMessage());
         }
@@ -107,7 +106,7 @@ public class WalletController {
                 java.time.LocalDate.now().toString(), body.getAmount(), "topup"));
 
         Map<String, Object> resp = new LinkedHashMap<>();
-        resp.put("chargeId",  chargeId);
+        resp.put("chargeId", chargeId);
         resp.put("qrCodeUrl", qrCodeUrl);
         return ResponseEntity.ok(resp);
     }
@@ -115,22 +114,23 @@ public class WalletController {
     // ─── Helpers ──────────────────────────────────────────────────────────────
 
     private SourceType resolveSourceType(String type) {
-        if (type == null) return SourceType.PromptPay;
+        if (type == null)
+            return SourceType.PromptPay;
         return switch (type.toLowerCase()) {
-            case "alipay"         -> SourceType.Alipay;
+            case "alipay" -> SourceType.Alipay;
             case "wechat_pay_mpm" -> SourceType.WeChatPay;
-            default               -> SourceType.PromptPay;
+            default -> SourceType.PromptPay;
         };
     }
 
     private static Map<String, Object> buildTx(
             String id, String description, String date, int amount, String type) {
         Map<String, Object> m = new LinkedHashMap<>();
-        m.put("id",          id);
+        m.put("id", id);
         m.put("description", description);
-        m.put("date",        date);
-        m.put("amount",      amount);
-        m.put("type",        type);   // topup | payment | redeem
+        m.put("date", date);
+        m.put("amount", amount);
+        m.put("type", type); // topup | payment | redeem
         return m;
     }
 }

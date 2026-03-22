@@ -9,6 +9,15 @@ public class RouteDetail {
     private String busType;
     private String boardingPoint;
     private String dropOffPoint;
+    private String routeId;
+
+    public String getRouteId() {
+        return routeId;
+    }
+
+    public void setRouteId(String routeId) {
+        this.routeId = routeId;
+    }
 
     public String getOrigin() {
         return origin;

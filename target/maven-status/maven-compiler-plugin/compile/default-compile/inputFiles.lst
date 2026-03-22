@@ -20,12 +20,15 @@
 /Users/ball/Documents/NexTicket/ticket-oa-api/src/main/java/com/nex/ticket/bao/PaymentResponseBao.java
 /Users/ball/Documents/NexTicket/ticket-oa-api/src/main/java/com/nex/ticket/bao/CreateBookingBao.java
 /Users/ball/Documents/NexTicket/ticket-oa-api/src/main/java/com/nex/ticket/bao/AuthLoginBao.java
+/Users/ball/Documents/NexTicket/ticket-oa-api/src/main/java/com/nex/ticket/bao/TripSearchRequest.java
+/Users/ball/Documents/NexTicket/ticket-oa-api/src/main/java/com/nex/ticket/bao/SeatDetail.java
 /Users/ball/Documents/NexTicket/ticket-oa-api/src/main/java/com/nex/ticket/model/Route.java
 /Users/ball/Documents/NexTicket/ticket-oa-api/src/main/java/com/nex/ticket/mock/MockData.java
 /Users/ball/Documents/NexTicket/ticket-oa-api/src/main/java/com/nex/ticket/bao/UpdateProfileBao.java
 /Users/ball/Documents/NexTicket/ticket-oa-api/src/main/java/com/nex/ticket/service/ChargeStore.java
 /Users/ball/Documents/NexTicket/ticket-oa-api/src/main/java/com/nex/ticket/bao/TransactionResponseBao.java
 /Users/ball/Documents/NexTicket/ticket-oa-api/src/main/java/com/nex/ticket/model/Promotion.java
+/Users/ball/Documents/NexTicket/ticket-oa-api/src/main/java/com/nex/ticket/bao/RouteDetail.java
 /Users/ball/Documents/NexTicket/ticket-oa-api/src/main/java/com/nex/ticket/bao/RedeemPointsBao.java
 /Users/ball/Documents/NexTicket/ticket-oa-api/src/main/java/com/nex/ticket/bao/ErrorResponse.java
 /Users/ball/Documents/NexTicket/ticket-oa-api/src/main/java/com/nex/ticket/controller/PaymentController.java

@@ -129,6 +129,50 @@ public class PaymentController {
             return ResponseEntity.notFound().build();
 
         if (record.getStatus().equalsIgnoreCase("success")) {
+            // Cancellation logic: same routeId and seat
+            PaymentBodyBao successPbao = record.getPaymentBodyBao();
+            if (successPbao != null && successPbao.getRoute() != null && successPbao.getRoute().getRouteId() != null
+                    && successPbao.getSeat() != null) {
+
+                String successRouteId = successPbao.getRoute().getRouteId();
+                Set<String> successSeatIds = successPbao.getSeat().stream()
+                        .map(s -> s.getId())
+                        .filter(Objects::nonNull)
+                        .collect(Collectors.toSet());
+
+                ChargeStore.getAllCharges().stream()
+                        .filter(c -> !c.getId().equals(record.getId()))
+                        .filter(c -> c.getStatus().equalsIgnoreCase("Pending"))
+                        .forEach(other -> {
+                            PaymentBodyBao otherPbao = other.getPaymentBodyBao();
+                            if (otherPbao != null && otherPbao.getRoute() != null
+                                    && successRouteId.equals(otherPbao.getRoute().getRouteId())
+                                    && otherPbao.getSeat() != null) {
+
+                                boolean hasOverlap = otherPbao.getSeat().stream()
+                                        .map(s -> s.getId())
+                                        .anyMatch(successSeatIds::contains);
+                                System.out.println("hasOverlap: " + hasOverlap);
+                                if (hasOverlap) {
+                                    ChargeStore.updateChargeStatus(other.getId(), "failed");
+
+                                    // Send cancel/reverse to Omise if not a mock ID
+                                    String otherId = other.getId();
+                                    if (otherId != null && !otherId.startsWith("test_chrg_")) {
+                                        try {
+                                            Request<Charge> reverseRequest = new Charge.ReverseRequestBuilder(otherId)
+                                                    .build();
+                                            omiseClient.sendRequest(reverseRequest);
+                                        } catch (Exception e) {
+                                            System.err.println("Failed to reverse Omise charge " + otherId + ": "
+                                                    + e.getMessage());
+                                        }
+                                    }
+                                }
+                            }
+                        });
+            }
+
             lineMessageService.sendCarouselMessage(record.getLineUserId());
         } else if (record.getStatus().equalsIgnoreCase("failed")) {
             lineMessageService.sendLineMessage(record.getLineUserId(), "Your charge has failed.");
@@ -170,7 +214,8 @@ public class PaymentController {
             }
 
             // Sync with memory store
-            ChargeStore.addCharge(source.getId(), (long) amountBaht * 100, "THB", null);
+            ChargeStore.addCharge(charge.getId(), source.getId(), (long) amountBaht * 100, "THB", null,
+                    paymentDetailBao);
 
             Map<String, Object> response = new LinkedHashMap<>();
             response.put("chargeId", charge.getId());
@@ -180,8 +225,9 @@ public class PaymentController {
 
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            String mockId = ChargeStore.addCharge("mock-source-" + type.toString(), (long) amountBaht * 100, "THB",
-                    null);
+            String mockId = ChargeStore.addCharge(null, "mock-source-" + type.toString(), (long) amountBaht * 100,
+                    "THB",
+                    null, paymentDetailBao);
             Map<String, Object> response = new LinkedHashMap<>();
             response.put("chargeId", mockId);
             response.put("qrCodeUrl", null);
@@ -189,5 +235,36 @@ public class PaymentController {
             response.put("message", "Using mock payment (test mode fallback)");
             return ResponseEntity.ok(response);
         }
+    }
+
+    // ─── POST /api/payment/cancel/:id ──────────────────────────────────────────
+
+    @PostMapping("/cancel/{id}")
+    public ResponseEntity<Map<String, Object>> cancelPayment(@PathVariable(name = "id") String id) {
+        ChargeStore.ChargeRecord record = ChargeStore.getCharge(id);
+        if (record == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        // Update local status to failed
+        ChargeStore.updateChargeStatus(id, "failed");
+
+        // Send cancel/reverse to Omise if not a mock ID
+        if (id != null && !id.startsWith("test_chrg_")) {
+            try {
+                Request<Charge> reverseRequest = new Charge.ReverseRequestBuilder(id).build();
+                omiseClient.sendRequest(reverseRequest);
+            } catch (Exception e) {
+                System.err.println(
+                        "User requested cancellation: failed to reverse Omise charge " + id + ": " + e.getMessage());
+            }
+        }
+
+        Map<String, Object> response = new LinkedHashMap<>();
+        response.put("success", true);
+        response.put("message", "Payment cancelled successfully");
+        response.put("chargeId", id);
+
+        return ResponseEntity.ok(response);
     }
 }
