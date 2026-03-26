@@ -14,8 +14,8 @@ import java.util.stream.Collectors;
 
 /**
  * Domain 4 – Promotions
- * GET  /api/promotions?memberOnly=
- * GET  /api/promotions/:id
+ * GET /api/promotions?memberOnly=
+ * GET /api/promotions/:id
  * POST /api/promotions/validate
  */
 @RestController
@@ -55,18 +55,18 @@ public class PromotionController {
 
         Promotion promo = MockData.findPromotionByCode(body.getPromoCode());
         if (promo == null) {
-            result.put("valid",           false);
+            result.put("valid", false);
             result.put("discountPercent", 0);
-            result.put("discountAmount",  0);
-            result.put("message",         "ไม่พบรหัสโปรโมชั่น");
+            result.put("discountAmount", 0);
+            result.put("message", "ไม่พบรหัสโปรโมชั่น");
             return ResponseEntity.ok(result);
         }
 
         if (promo.getRemainingQuota() <= 0) {
-            result.put("valid",           false);
+            result.put("valid", false);
             result.put("discountPercent", 0);
-            result.put("discountAmount",  0);
-            result.put("message",         "โปรโมชั่นนี้ถูกใช้ครบแล้ว");
+            result.put("discountAmount", 0);
+            result.put("message", "โปรโมชั่นนี้ถูกใช้ครบแล้ว");
             return ResponseEntity.ok(result);
         }
 
@@ -79,10 +79,10 @@ public class PromotionController {
             }
         }
 
-        result.put("valid",           true);
+        result.put("valid", true);
         result.put("discountPercent", promo.getDiscountPercent());
-        result.put("discountAmount",  effectiveDiscountAmount);
-        result.put("message",         null);
+        result.put("discountAmount", effectiveDiscountAmount);
+        result.put("message", null);
         return ResponseEntity.ok(result);
     }
 }

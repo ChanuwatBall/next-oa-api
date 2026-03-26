@@ -19,8 +19,8 @@ import java.util.UUID;
  * POST /api/auth/line
  * POST /api/auth/logout
  *
- * Domain 7 – User Profile  (🔒 Auth placeholder)
- * GET   /api/users/me
+ * Domain 7 – User Profile (🔒 Auth placeholder)
+ * GET /api/users/me
  * PATCH /api/users/me
  */
 @RestController
@@ -31,22 +31,22 @@ public class AuthController {
     private static final Map<String, Object> MOCK_USER = new LinkedHashMap<>();
 
     static {
-        MOCK_USER.put("id",            "usr_001");
-        MOCK_USER.put("fullName",      "สมชาย ใจดี");
-        MOCK_USER.put("phone",         "0812345678");
-        MOCK_USER.put("email",         "user@example.com");
-        MOCK_USER.put("lineUserId",    "Uxxxxxxxxxxxxxxxx");
-        MOCK_USER.put("avatarUrl",     "https://cdn.example.com/avatar/usr_001.jpg");
-        MOCK_USER.put("points",        156);
+        MOCK_USER.put("id", "usr_001");
+        MOCK_USER.put("fullName", "สมชาย ใจดี");
+        MOCK_USER.put("phone", "0812345678");
+        MOCK_USER.put("email", "user@example.com");
+        MOCK_USER.put("lineUserId", "Uxxxxxxxxxxxxxxxx");
+        MOCK_USER.put("avatarUrl", "https://cdn.example.com/avatar/usr_001.jpg");
+        MOCK_USER.put("points", 156);
         MOCK_USER.put("walletBalance", 350);
-        MOCK_USER.put("memberSince",   "2025-01-15");
+        MOCK_USER.put("memberSince", "2025-01-15");
     }
 
     private Map<String, Object> buildAuthResponse() {
         String token = "mock-jwt-" + UUID.randomUUID().toString().replace("-", "").substring(0, 24);
         Map<String, Object> response = new LinkedHashMap<>();
         response.put("token", token);
-        response.put("user",  new LinkedHashMap<>(MOCK_USER));
+        response.put("user", new LinkedHashMap<>(MOCK_USER));
         return response;
     }
 
@@ -70,8 +70,8 @@ public class AuthController {
         }
         // Update mock user to reflect registration data
         MOCK_USER.put("fullName", body.getFullName());
-        MOCK_USER.put("phone",    body.getPhone());
-        MOCK_USER.put("email",    body.getEmail());
+        MOCK_USER.put("phone", body.getPhone());
+        MOCK_USER.put("email", body.getEmail());
 
         return ResponseEntity.status(HttpStatus.CREATED).body(buildAuthResponse());
     }
@@ -106,10 +106,14 @@ public class AuthController {
 
     @PatchMapping("/api/users/me")
     public ResponseEntity<Map<String, Object>> updateProfile(@RequestBody UpdateProfileBao body) {
-        if (body.getFullName() != null)  MOCK_USER.put("fullName",  body.getFullName());
-        if (body.getPhone()    != null)  MOCK_USER.put("phone",     body.getPhone());
-        if (body.getEmail()    != null)  MOCK_USER.put("email",     body.getEmail());
-        if (body.getAvatarUrl()!= null)  MOCK_USER.put("avatarUrl", body.getAvatarUrl());
+        if (body.getFullName() != null)
+            MOCK_USER.put("fullName", body.getFullName());
+        if (body.getPhone() != null)
+            MOCK_USER.put("phone", body.getPhone());
+        if (body.getEmail() != null)
+            MOCK_USER.put("email", body.getEmail());
+        if (body.getAvatarUrl() != null)
+            MOCK_USER.put("avatarUrl", body.getAvatarUrl());
         return ResponseEntity.ok(new LinkedHashMap<>(MOCK_USER));
     }
 
@@ -118,8 +122,8 @@ public class AuthController {
     private Map<String, Object> errorBody(int code, String message, String error) {
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("statusCode", code);
-        m.put("message",    message);
-        m.put("error",      error);
+        m.put("message", message);
+        m.put("error", error);
         return m;
     }
 }

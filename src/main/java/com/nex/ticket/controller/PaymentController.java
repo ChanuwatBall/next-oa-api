@@ -7,10 +7,14 @@ import co.omise.models.SourceType;
 import co.omise.requests.Request;
 import com.nex.ticket.bao.ChargeDto;
 import com.nex.ticket.bao.PaymentBodyBao;
+import com.nex.ticket.bao.PaymentResponse;
 import com.nex.ticket.service.ChargeStore;
 import com.nex.ticket.service.LineMessageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.handler.annotation.DestinationVariable;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
@@ -222,6 +226,7 @@ public class PaymentController {
                     .amount((long) amountBaht * 100)
                     .currency("THB")
                     .source(source.getId())
+                    .metadata(Map.of("order_id", source.getId()))
                     .build();
             Charge charge = omiseClient.sendRequest(chargeReq);
 
@@ -287,5 +292,13 @@ public class PaymentController {
         }
 
         return ResponseEntity.ok(response);
+    }
+
+    // ตัวอย่าง: ถ้า Client ส่งมาที่ /app/payment-check/ORD123
+    @MessageMapping(value = "/payment-check/{orderId}")
+    @SendTo("/topic/order/{orderId}") // ส่งผลลัพธ์กลับไปที่ Topic เดิม
+    public PaymentResponse checkStatus(@DestinationVariable String orderId) {
+        // ทำ logic ตรวจสอบสถานะล่าสุดใน DB
+        return new PaymentResponse(orderId, "STILL_PENDING");
     }
 }

@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import jakarta.servlet.http.HttpServletRequest;
 
-@Controller 
+@Controller
 @RequestMapping("/")
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 
@@ -18,7 +18,7 @@ public class WebController {
         return "redirect:/charges.html";
     }
 
-    @GetMapping(value = {"/charge", "/charge/", "/charge/{path:[^\\.]*}"})
+    @GetMapping(value = { "/charge", "/charge/", "/charge/{path:[^\\.]*}" })
     public String forward(HttpServletRequest request) {
         // Forward to static index while preserving query string explicitly
         String qs = request.getQueryString();
@@ -27,6 +27,5 @@ public class WebController {
                 ? "forward:" + target + "?" + qs
                 : "forward:" + target;
     }
-
 
 }
