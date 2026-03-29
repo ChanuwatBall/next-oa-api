@@ -21,9 +21,11 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        // --- นี่คือจุดที่ /ws-payment ถูกสร้างขึ้น ---
         registry.addEndpoint("/ws-payment")
-                .setAllowedOriginPatterns("*") // อนุญาตให้ React (คนละ Port) เชื่อมต่อได้
-                .withSockJS(); // รองรับ SockJS สำหรับ Browser รุ่นเก่า
+                .setAllowedOriginPatterns("*");
+
+        // registry.addEndpoint("/ws-payment")
+        // .setAllowedOriginPatterns("*")
+        // .withSockJS();
     }
 }

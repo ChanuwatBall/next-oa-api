@@ -29,8 +29,9 @@ public class PaymentService {
 
         // 1. แปลงสถานะจาก Omise เป็นสถานะที่ UI เข้าใจ
         // Omise status: pending, succeeded, failed, reversed, etc.
-        if ("succeeded".equals(omiseStatus)) {
+        if ("successful".equals(omiseStatus)) {
             finalStatus = "SUCCESS";
+
         } else if ("failed".equals(omiseStatus)) {
             finalStatus = "FAILED";
         } else {

@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.time.ZonedDateTime;
 
 /**
  * Domain 5 – Payment
@@ -155,8 +156,9 @@ public class PaymentController {
 
                 List<ChargeStore.ChargeRecord> otherCharges = ChargeStore.getAllCharges().stream()
                         .filter(c -> !c.getId().equals(record.getId()))
-                        .filter(c -> c.getStatus().equalsIgnoreCase("Pending"))
+                        .filter(c -> c.getStatus().toLowerCase().equals("pending"))
                         .toList();
+                System.out.println("otherCharges " + otherCharges.size());
                 for (ChargeStore.ChargeRecord chrg : otherCharges) {
                     PaymentBodyBao otherPbao = chrg.getPaymentBodyBao();
                     if (otherPbao != null && otherPbao.getRoute() != null
@@ -169,10 +171,9 @@ public class PaymentController {
                         System.out.println("has overlap : " + hasOverlap);
                         if (hasOverlap) {
                             ChargeStore.updateChargeStatus(chrg.getId(), "failed");
-
                             // Send cancel/reverse to Omise if not a mock ID
                             String otherId = chrg.getId();
-                            if (otherId != null && !otherId.startsWith("test_chrg_")) {
+                            if (otherId != null) {
                                 try {
                                     Request<Charge> markAsFailedRequest = new Charge.MarkAsFailedRequestBuilder(
                                             otherId)
@@ -183,6 +184,8 @@ public class PaymentController {
                                     System.err.println("Failed to mark Omise charge as failed " + otherId + ": "
                                             + e.getMessage());
                                 }
+                            } else {
+                                System.out.print("otherId is. null ");
                             }
                         }
                     } else {
@@ -215,6 +218,7 @@ public class PaymentController {
     private ResponseEntity<Map<String, Object>> createOmiseCharge(int amountBaht, SourceType type,
             PaymentBodyBao paymentDetailBao) {
         try {
+
             Request<Source> sourceReq = new Source.CreateRequestBuilder()
                     .type(type)
                     .amount((long) amountBaht * 100)
@@ -222,9 +226,11 @@ public class PaymentController {
                     .build();
             Source source = omiseClient.sendRequest(sourceReq);
 
+            ZonedDateTime zdtExDate = ZonedDateTime.now().plusMinutes(15);
             Request<Charge> chargeReq = new Charge.CreateRequestBuilder()
                     .amount((long) amountBaht * 100)
                     .currency("THB")
+                    .expiresAt(zdtExDate)
                     .source(source.getId())
                     .metadata(Map.of("order_id", source.getId()))
                     .build();
@@ -241,21 +247,26 @@ public class PaymentController {
 
             Map<String, Object> response = new LinkedHashMap<>();
             response.put("chargeId", charge.getId());
+            response.put("sourceId", source.getId());
             response.put("qrCodeUrl", qrUrl);
             response.put("status", charge.getStatus().toString().toLowerCase());
-            response.put("expiresAt", "2026-03-16T21:00:00Z");
+            response.put("expiresAt", zdtExDate.toInstant().toString());
 
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             String mockId = ChargeStore.addCharge(null, "mock-source-" + type.toString(), (long) amountBaht * 100,
                     "THB",
                     null, paymentDetailBao);
+            ZonedDateTime zdtExDateMock = ZonedDateTime.now().plusMinutes(15);
             Map<String, Object> response = new LinkedHashMap<>();
             response.put("chargeId", mockId);
+            response.put("sourceId", "mock-source-" + type.toString());
             response.put("qrCodeUrl", null);
             response.put("status", "pending");
+            response.put("expiresAt", zdtExDateMock.toInstant().toString());
             response.put("message", "Using mock payment (test mode fallback)");
             return ResponseEntity.ok(response);
+
         }
     }
 

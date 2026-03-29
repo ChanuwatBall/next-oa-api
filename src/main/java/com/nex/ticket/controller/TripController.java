@@ -26,11 +26,14 @@ public class TripController {
     @PostMapping
     public ResponseEntity<List<Trip>> getTrips(
             @RequestBody TripSearchRequest tripSearchRequest) {
-        System.out.println("originProvinceId: " + tripSearchRequest.getOriginProvinceId());
-        System.out.println("destinationProvinceId: " + tripSearchRequest.getDestinationProvinceId());
-        System.out.println("date: " + tripSearchRequest.getDate());
-        System.out.println("routeId: " + tripSearchRequest.getRouteId());
-        System.out.println("passengerCount: " + tripSearchRequest.getPassengerCount());
+        // System.out.println("originProvinceId: " +
+        // tripSearchRequest.getOriginProvinceId());
+        // System.out.println("destinationProvinceId: " +
+        // tripSearchRequest.getDestinationProvinceId());
+        // System.out.println("date: " + tripSearchRequest.getDate());
+        // System.out.println("routeId: " + tripSearchRequest.getRouteId());
+        // System.out.println("passengerCount: " +
+        // tripSearchRequest.getPassengerCount());
         List<Trip> result = MockData.TRIPS;
 
         if (tripSearchRequest.getOriginProvinceId() != null && !tripSearchRequest.getOriginProvinceId().isBlank()) {

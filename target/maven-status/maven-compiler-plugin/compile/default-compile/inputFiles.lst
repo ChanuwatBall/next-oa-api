@@ -6,6 +6,7 @@
 /Users/ball/Documents/NexTicket/ticket-oa-api/src/main/java/com/nex/ticket/config/StaticResourceConfig.java
 /Users/ball/Documents/NexTicket/ticket-oa-api/src/main/java/com/nex/ticket/controller/RouteController.java
 /Users/ball/Documents/NexTicket/ticket-oa-api/src/main/java/com/nex/ticket/controller/PromotionController.java
+/Users/ball/Documents/NexTicket/ticket-oa-api/src/main/java/com/nex/ticket/config/TomcatConfig.java
 /Users/ball/Documents/NexTicket/ticket-oa-api/src/main/java/com/nex/ticket/bao/PaymentBodyBao.java
 /Users/ball/Documents/NexTicket/ticket-oa-api/src/main/java/com/nex/ticket/controller/OmiseWebhookController.java
 /Users/ball/Documents/NexTicket/ticket-oa-api/src/main/java/com/nex/ticket/controller/WebController.java
