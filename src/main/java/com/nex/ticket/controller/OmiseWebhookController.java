@@ -9,6 +9,7 @@ import co.omise.Client;
 import co.omise.models.Charge;
 import co.omise.requests.Request;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,9 +27,11 @@ public class OmiseWebhookController {
     private Client omiseClient;
 
     private final PaymentService paymentService;
+    private final ObjectMapper objectMapper;
 
-    public OmiseWebhookController(PaymentService paymentService) {
+    public OmiseWebhookController(PaymentService paymentService, ObjectMapper objectMapper) {
         this.paymentService = paymentService;
+        this.objectMapper = objectMapper;
     }
 
     @PostMapping("/omise")
@@ -37,6 +40,12 @@ public class OmiseWebhookController {
             // 1. แกะโครงสร้าง JSON ของ Omise
             // โครงสร้างปกติคือ: { "data": { "status": "...", "metadata": { "order_id":
             // "..." } } }
+            try {
+                String jsonPayload = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(payload);
+                System.err.println("Omise Webhook: " + jsonPayload);
+            } catch (Exception e) {
+                // System.err.println("Omise Webhook: " + payload);
+            }
             Map<String, Object> data = (Map<String, Object>) payload.get("data");
             String status = (String) data.get("status");
 
